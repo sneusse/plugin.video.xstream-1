@@ -2,13 +2,10 @@ Big THX to all contributors!
 For more information check out the commit history at GitHub.
 
 Nightly Update
-================================================================================
-
-
+    - Update foxx
 
  xStream 3.4.0
- ================================================================================
-
+ 
     - Add and Update animes-stream24_tv
     - Fix Movietown BLAZINGFAST Problem 
     - [Streamit] Fix Thumbnail & Genre usw
@@ -21,7 +18,6 @@ Nightly Update
 - fix [tata.to]
 
 xStream v3.3.0 - 18.01.2017
-================================================================================
 
 FIXES…
  - [dokustream] fix for kategories
@@ -39,7 +35,6 @@ NEW…
 
 
 xStream v3.2.0 - 23.12.2016
-================================================================================
 
 FIXES…
  - [general] allow default value on 'getsetting'
@@ -121,4 +116,3 @@ REMOVED…
  - [movie4k] support Stream4k as hoster
  - [mykino] remove seperate ‚searchentries' for search
  - [tata.to] remove unnecessary function and unused parameter
- 
