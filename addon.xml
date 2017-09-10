@@ -25,23 +25,7 @@
    <source>https://github.com/lastship/plugin.video.xstream</source>
    <license>GNU GPLv3</license>
    <platform>all</platform>
-   <news>Big THX to all contributors!
-   For more information check out the commit history at GitHub.
-
-
-xStream 3.4.0
-    ================================================================================
-
-    - Add and Update animes-stream24_tv
-    - Fix Movietown BLAZINGFAST Problem 
-    - [Streamit] Fix Thumbnail and Genre usw
-    - hdfilme.tv fix hoster 
-    - Create Cinenator 
-    - Create dokustream_org
-    - Create NetzKino 
-    - Fix search and fix single hoster and remove unnecessary code 
-    - Fix DDL.me
-    - fix [tata.to]
+   <news>- Update foxx
    </news>
    <assets>
      <icon>icon.png</icon>
