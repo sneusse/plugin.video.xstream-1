@@ -3,7 +3,7 @@ For more information check out the commit history at GitHub.
 
 Nightly Update
     - Update foxx
-
+ - Update moviesever_com
  xStream 3.4.0
  
     - Add and Update animes-stream24_tv
