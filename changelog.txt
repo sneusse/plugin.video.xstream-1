@@ -2,6 +2,7 @@ Big THX to all contributors!
 For more information check out the commit history at GitHub.
 
 Nightly Update
+    - Update Dokustream
     - Update foxx, Fix BlazingFast
     - Update moviesever_com
     - Update kinox
