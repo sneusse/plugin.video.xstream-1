@@ -43,10 +43,77 @@ def showValue(entryUrl=False):
     params = ParameterHandler()
     if not entryUrl: entryUrl = params.getValue('sUrl')
     sHtmlContent = cRequestHandler(entryUrl).request()
-    sPattern = 'class="entry-title">.*?<footer class="entry-meta">'
+    sPattern = '<div[^>]*class="p-first-letter">.*?><!--[^>]*end .p-first-letter'
     isMatch, sHtmlContainer = cParser.parseSingleResult(sHtmlContent, sPattern)
 
     if not isMatch:
+        oGui.showInfo('xStream', 'Es wurde kein Eintrag gefunden')
+        return
+
+    sPattern = '<a[^>]*href="([^"]+)">([^<]+)'
+    isMatch, aResult = cParser.parse(sHtmlContainer, sPattern)
+
+    if not isMatch:
+        oGui.showInfo('xStream', 'Es wurde kein Eintrag gefunden')
+        return
+
+    for sUrl, sName in aResult:
+        params.setParam('sUrl', sUrl)
+        oGui.addFolder(cGuiElement(sName, SITE_IDENTIFIER, 'showEntries'), params)
+    oGui.setEndOfDirectory()
+
+
+def showEntries(entryUrl=False, sGui=False):
+    oGui = sGui if sGui else cGui()
+    params = ParameterHandler()
+    if not entryUrl: entryUrl = params.getValue('sUrl')
+
+    sHtmlContent = cRequestHandler(entryUrl, ignoreErrors=(sGui is not False)).request()
+    pattern = '<div[^>]*class="clear">.*?<a[^>]*href="([^"]+)">.*?<img[^>]*src="([^"]+)".*?<h2[^>]*class="entry-title">([^<]+)'
+    isMatch, aResult = cParser.parse(sHtmlContent, pattern)
+
+    if not isMatch:
+        if not sGui: oGui.showInfo('xStream', 'Es wurde kein Eintrag gefunden')
+        return
+
+    total = len(aResult)
+    for sUrl, sThumbnail, sName in aResult:
+        oGuiElement = cGuiElement(sName, SITE_IDENTIFIER, 'getHosterUrl')
+        oGuiElement.setThumbnail(sThumbnail)
+        params.setParam('entryUrl', sUrl)
+        oGui.addFolder(oGuiElement, params, False, total)
+
+    if not sGui:
+        sPattern = '<a[^>]*class="nextpostslink"[^>]*rel="next"[^>]*href="([^"]+)'
+        isMatchNextPage, sNextUrl = cParser.parseSingleResult(sHtmlContent, sPattern)
+        if isMatchNextPage:
+            params.setParam('sUrl', sNextUrl)
+            oGui.addNextPage(SITE_IDENTIFIER, 'showEntries', params)
+        oGui.setEndOfDirectory()
+
+
+def getHosterUrl(sUrl=False):
+    if not sUrl: sUrl = ParameterHandler().getValue('entryUrl')
+    sHtmlContent = cRequestHandler(sUrl).request()
+    try:
+        hLink = re.compile('<iframe.*?src="([^"]+)', flags=re.I | re.M).findall(sHtmlContent)[0]
+        return [{'streamUrl': hLink, 'resolved': False}]
+    except:
+        pass
+
+
+def showSearch():
+    oGui = cGui()
+    sSearchText = oGui.showKeyBoard()
+    if not sSearchText: return
+    _search(False, sSearchText)
+    oGui.setEndOfDirectory()
+
+
+def _search(oGui, sSearchText):
+    if not sSearchText: return
+    showEntries(URL_SEARCH % sSearchText.strip(), oGui)
+
         oGui.showInfo('xStream', 'Es wurde kein Eintrag gefunden')
         return
 
