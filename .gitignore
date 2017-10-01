@@ -214,17 +214,3 @@ pip-log.txt
 #Mr Developer
 .mr.developer.cfg
 *.pyo
-
-#############
-## PyCharm
-#############
-
-.idea/
-
-#############
-## xStream
-#############
-
-TEMP/
-*pydev*
-third_party/
