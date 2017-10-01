@@ -1,6 +1,7 @@
-Big THX to all contributors!
-For more information check out the commit history at GitHub.
 
+Nightly Updates
+
+- Fix kinox
 
 xStream 3.4.1
 
