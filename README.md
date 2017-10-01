@@ -8,5 +8,5 @@ Bei xStream handelt es sich um ein Video-Addon für Kodi, welches das streamen v
 
 [![Join the chat at https://gitter.im/Lastship_Chat/xStream](https://badges.gitter.im/Lastship_Chat/xStream.svg)](https://gitter.im/Lastship_Chat/xStream?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-### | [Homepage](https://xstream-kodi.github.io) | [Wiki](https://github.com/xStream-Kodi/plugin.video.xstream/wiki) | [Forum](http://xstream-addon.square7.ch) | [Site-Plugin Wunschliste](https://docs.google.com/spreadsheets/d/1b_9C6BONlpWcugMgocFbKxe7nFp99HfvVUJznxTzT4I/edit?usp=sharing) | [GitHub](https://github.com/xStream-Kodi/plugin.video.xstream) |
+### | [Homepage](https://xstream-kodi.github.io) | [Wiki](https://github.com/xStream-Kodi/plugin.video.xstream/wiki) | [Forum](http://lastship.square7.ch/forum/forumdisplay.php?fid=15) | [Site-Plugin Wunschliste](https://docs.google.com/spreadsheets/d/1b_9C6BONlpWcugMgocFbKxe7nFp99HfvVUJznxTzT4I/edit?usp=sharing) | [GitHub](https://github.com/lastship/plugin.video.xstream/tree/nightly) |
 
