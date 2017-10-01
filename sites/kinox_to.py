@@ -763,7 +763,7 @@ def showHosters(sHtmlContent='', sTitle=False):
         for aEntry in aResult[1]:
             sHoster = aEntry[1]
             # check for additional mirrors
-            sPattern = '<b>Mirror</b>: [0-9]+/([0-9]+)<br/>'
+            sPattern = '<b>Mirror</b>: [0-9]+/([0-9]+)'
             oParser = cParser()
             aResult = oParser.parse(aEntry[2], sPattern)
             mirrors = 1
