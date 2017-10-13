@@ -352,7 +352,7 @@ def getHosters(sUrl=False):
         for sServername, sInnerHtml in aResult:
             # Alle Links für diesen Server ermitteln 
             isMatch, aResult = cParser.parse(sInnerHtml, "href=['\"]([^'\"]*)['\"][^>]*>")
-
+            
             # Keine Links gefunden? => weiter machen 
             if not isMatch:
                 continue
@@ -361,7 +361,7 @@ def getHosters(sUrl=False):
             for singleUrl in aResult:
 
                 # Link auf korrekte Episode prüfen
-                aMatches = re.compile("episode=(%s)&" % sEpisode).findall(singleUrl)
+                aMatches = re.compile("episode=(%s)" % sEpisode).findall(singleUrl)
 
                 # Wurde ein Link gefunden? => Einträge zur Gesamtliste hinzufügen
                 if aMatches:
@@ -379,9 +379,8 @@ def _getHostFromUrl(sID, sEpisode, sServername):
     # Seite abrufen
     sHtmlContent = cRequestHandler(URL_GETLINK + sID + '/' + sEpisode).request()
     sHtmlContent = base64.b64decode(str(sHtmlContent))
-    pattern = 'label":"([^",]+).*?file"?\s*:\s*"(.+?)"'
+    pattern = '''["']?\s*file\s*["']?\s*[:=,]?\s*["']([^"']+)(?:[^}>\]]+)["']?\s*label\s*["']?\s*[:=]\s*["']?([^"',]+)'''
     isMatch, aResult = cParser.parse(sHtmlContent, pattern)
-
     # Nichts gefunden? => Raus hier
     if not isMatch:
         logger.info("hoster pattern did not match")
@@ -391,7 +390,8 @@ def _getHostFromUrl(sID, sEpisode, sServername):
     hosters = []
 
     # Alle Einträge durchlaufen und Hostereintrag erstellen
-    for quali, sUrl in aResult:
+    for sUrl,quali in aResult:
+
         sUrl = sUrl.replace('\/', '/')
         sLabel = sServername + ' - ' + quali
         hoster = dict()
@@ -405,7 +405,6 @@ def _getHostFromUrl(sID, sEpisode, sServername):
     # Hoster zurückgeben
     return hosters
 
-
 def play(sUrl=False):
     # ParameterHandler erzeugen
     oParams = ParameterHandler()
@@ -415,12 +414,12 @@ def play(sUrl=False):
 
     # Array mit einem Eintrag für Hosterliste erzeugen (sprich direkt abspielen)
     results = []
-    result = {'streamUrl': sUrl, 'resolved': True}
+    ref = oParams.getValue('entryUrl').replace("-info", "-stream")
+    result = {'streamUrl':  sUrl + '|Referer=' + ref + '|User-Agent=Mozilla/5.0 (Windows NT 6.3; rv:36.0) Gecko/20100101 Firefox/36.0', 'resolved': True}
     results.append(result)
 
     # Ergebniss zurückliefern
     return results
-
 
 # Sucher über UI
 def showSearch():
@@ -439,7 +438,6 @@ def showSearch():
     # Liste abschließen und View setzen
     oGui.setView()
     oGui.setEndOfDirectory()
-
 
 # Such-Funktion (z.b auch für Globale-Suche)
 def _search(oGui, sSearchText):
