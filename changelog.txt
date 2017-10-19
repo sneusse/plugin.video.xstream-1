@@ -1,6 +1,8 @@
 
 Nightly Updates
 
+- Fix Kinodogs (Next Page)
+- Fix Cinenator (Erscheinungsjahr)
 - Fix kinox
 - Fix hdfilme_tv
 
