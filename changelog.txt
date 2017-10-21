@@ -1,5 +1,5 @@
 
-Nightly Updates
+xStream 3.4.2
 
 - Fix Kinodogs (Next Page)
 - Fix Cinenator (Erscheinungsjahr)
