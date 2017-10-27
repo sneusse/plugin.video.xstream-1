@@ -343,7 +343,7 @@ def getHosters(sUrl=False):
     # Prüfen ob Server ermittelt werden konnte 
     if isMatch:
         # Prüfen ob eine direkte-Episode gewünscht ist
-        aMatches = re.compile("episode=(\d+)&").findall(sUrl)
+        aMatches = re.compile("episode=(\d+)$").findall(sUrl)
 
         # gewünsche Episode ermitteln wenn möglich
         sEpisode = "1" if not aMatches else aMatches[0]
@@ -359,9 +359,8 @@ def getHosters(sUrl=False):
 
             # Alle Links durchlaufen
             for singleUrl in aResult:
-
                 # Link auf korrekte Episode prüfen
-                aMatches = re.compile("episode=(%s)" % sEpisode).findall(singleUrl)
+                aMatches = re.compile("episode=(%s)$" % sEpisode).findall(singleUrl)
 
                 # Wurde ein Link gefunden? => Einträge zur Gesamtliste hinzufügen
                 if aMatches:
