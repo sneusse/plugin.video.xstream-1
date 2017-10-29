@@ -379,28 +379,27 @@ def _getHostFromUrl(sID, sEpisode, sServername):
     sHtmlContent = cRequestHandler(URL_GETLINK + sID + '/' + sEpisode).request()
     sHtmlContent = base64.b64decode(str(sHtmlContent))
 
+    logger.debug("request: " + URL_GETLINK + sID + '/' + sEpisode)
+
     if sHtmlContent is None:
         logger.info("result string is none")
         return []
 
+    logger.debug("server response: " + str(sHtmlContent))
+
     try:
-        resultJson = json.loads(sHtmlContent)
-    except ValueError:
-        logger.debug("could not decode resultJson because of invalid content")
-        return []
-    except TypeError:
-        logger.debug("could not decode server json because of invalid type")
+        getLinkResponseJson = json.loads(sHtmlContent)
+    except (ValueError, TypeError):
+        logger.debug("could not decode server response")
         return []
 
-    if len(resultJson['playinfo']) == 0:
-        logger.info("no entries in playinfo")
+    if 'playinfo' not in getLinkResponseJson:
+        logger.info("no playable sources")
         return []
-
-    logger.debug("resultJson = " + str(resultJson))
 
     hosters = []
 
-    for playableEntry in resultJson['playinfo']:
+    for playableEntry in getLinkResponseJson['playinfo']:
         hoster = dict()
         quality = playableEntry["label"]
         url = playableEntry["file"]
