@@ -1,5 +1,6 @@
 Nightly Updates
 
+- Fix hdfilme_tv (Danke an vka)
 
 xStream 3.4.2
 
