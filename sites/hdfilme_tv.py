@@ -22,18 +22,18 @@ URL_SEARCH = URL_MAIN + 'movie-search?key=%s'
 URL_GETLINK = URL_MAIN + 'movie/getlink/'
 
 # Parameter für die Sortierung
-URL_PARMS_ORDER_UPDATE = 'order_f=last_update'
-URL_PARMS_ORDER_UPDATE_ASC = URL_PARMS_ORDER_UPDATE + '&order_d=asc'
-URL_PARMS_ORDER_YEAR = 'order_f=year'
-URL_PARMS_ORDER_YEAR_ASC = URL_PARMS_ORDER_YEAR + '&order_d=asc'
-URL_PARMS_ORDER_NAME = 'order_f=name'
-URL_PARMS_ORDER_NAME_ASC = URL_PARMS_ORDER_NAME + '&order_d=asc'
-URL_PARMS_ORDER_VIEWS = 'order_f=view'
-URL_PARMS_ORDER_VIEWS_ASC = URL_PARMS_ORDER_VIEWS + '&order_d=asc'
-URL_PARMS_ORDER_IMDB = 'order_f=imdb'
-URL_PARMS_ORDER_IMDB_ASC = URL_PARMS_ORDER_IMDB + '&order_d=asc'
-URL_PARMS_ORDER_HDRATE = 'order_f=rate'
-URL_PARMS_ORDER_HDRATE_ASC = URL_PARMS_ORDER_HDRATE + '&order_d=asc'
+URL_PARMS_ORDER_UPDATE = 'sort=top'
+URL_PARMS_ORDER_UPDATE_ASC = URL_PARMS_ORDER_UPDATE + '&sort_type=asc'
+URL_PARMS_ORDER_YEAR = 'sort=year'
+URL_PARMS_ORDER_YEAR_ASC = URL_PARMS_ORDER_YEAR + '&sort_type=asc'
+URL_PARMS_ORDER_NAME = 'sort=name'
+URL_PARMS_ORDER_NAME_ASC = URL_PARMS_ORDER_NAME + '&sort_type=asc'
+URL_PARMS_ORDER_VIEWS = 'sort=view'
+URL_PARMS_ORDER_VIEWS_ASC = URL_PARMS_ORDER_VIEWS + '&sort_type=asc'
+URL_PARMS_ORDER_IMDB = 'sort=imdb'
+URL_PARMS_ORDER_IMDB_ASC = URL_PARMS_ORDER_IMDB + '&sort_type=asc'
+URL_PARMS_ORDER_HDRATE = 'sort=rate'
+URL_PARMS_ORDER_HDRATE_ASC = URL_PARMS_ORDER_HDRATE + '&sort_type=asc'
 
 QUALITY_ENUM = {'240': 0, '360': 1, '480': 2, '720': 3, '1080': 4}
 
@@ -82,7 +82,7 @@ def showContentMenu():
     oGui.addFolder(cGuiElement('IMDB Punkt', SITE_IDENTIFIER, 'showEntries'), params)
     params.setParam('sUrl', baseURL + URL_PARMS_ORDER_HDRATE)
     oGui.addFolder(cGuiElement('Bewertung HDFilme.tv', SITE_IDENTIFIER, 'showEntries'), params)
-    params.setParam('sUrl', baseURL) #+ URL_PARMS_ORDER_NAME_ASC)
+    params.setParam('sUrl', baseURL)
     oGui.addFolder(cGuiElement('Genre', SITE_IDENTIFIER, 'showGenreList'), params)
 
     # Liste abschließen
@@ -103,13 +103,14 @@ def showGenreList():
     sHtmlContent = cRequestHandler(entryUrl).request()
 
     # Select für Generes-Container
-    pattern = '<select[^>]*name="cat"[^>]*>(.*?)</select[>]'
+    pattern = '<select[^>]*name="category"[^>]*>(.*?)</select[^>]*>'
 
     # Regex parsen
     isMatch, sContainer = cParser.parseSingleResult(sHtmlContent, pattern)
 
     # Nichts gefunden? => raus hier
     if not isMatch:
+        logger.debug("genre regex not matched")
         return
 
     # Filter für Genres
@@ -120,11 +121,12 @@ def showGenreList():
 
     # Nichts gefunden? => raus hier
     if not isMatch:
+        logger.debug("value regex not matched")
         return
 
     # Alle Genres durchlaufen und Liste erzeugen
     for sID, sGenre in sorted(aResult, key=lambda k: k[1]):
-        params.setParam('sUrl', entryUrl + 'cat=' + sID + '&country=&order_f=last_update')
+        params.setParam('sUrl', entryUrl + 'category=' + sID + '&country=&order_f=last_update')
         oGui.addFolder(cGuiElement(sGenre.strip(), SITE_IDENTIFIER, 'showEntries'), params)
 
     # Liste abschließen
@@ -210,7 +212,12 @@ def showEntries(entryUrl=False, sGui=False):
         isTvshow = True if sEpisodeNrs else False
 
         # Listen-Eintrag erzeugen
-        oGuiElement = cGuiElement(sName, SITE_IDENTIFIER, 'showHosters')
+        sUIElementName = sName
+
+        if URL_PARMS_ORDER_YEAR in entryUrl:
+            sUIElementName += ' (' + str(iYear) + ')'
+
+        oGuiElement = cGuiElement(sUIElementName, SITE_IDENTIFIER, 'showHosters')
 
         # Bei Serien Title anpassen
         res = re.search('(.*?)\s(?:staf+el|s)\s*(\d+)', sName, re.I)
@@ -244,16 +251,25 @@ def showEntries(entryUrl=False, sGui=False):
     # Nur ausführen wenn das Gui-Element Plugin intern ist
     if not sGui:
         # Pattern um die Aktuelle Seite zu ermitteln
-        pattern = '<ul[^>]*class="pagination[^>]*>.*?'
-        pattern += '<li[^>]*class="\s*active\s*"[^>]*>.*?</li>.*?<a[^>]*>(\d*)</a>.*?</ul>'
+        # pattern = '<ul[^>]*class="pagination[^>]*>.*?'
+        # pattern += '<li[^>]*class="\s*active\s*"[^>]*>.*?</li>.*?<a[^>]*>(\d*)</a>.*?</ul>'
 
         # Seite parsen
-        isMatch, sPageNr = cParser.parse(sHtmlContent, pattern)
+        # isMatch, sPageNr = cParser.parse(sHtmlContent, pattern)
 
+        sPageNr = int(params.getValue('page'))
+        if sPageNr == 0:
+            sPageNr = 2
+        else:
+            sPageNr += 1
+
+        # TODO: Fallunterscheidung entfernt, weil hdfilme die pagination unzuverlässig anzeigt
         # Falls ein Ergebniss gefunden wurden "Next-Page" ergänzen
-        if isMatch:
-            params.setParam('page', int(sPageNr[0]))
-            oGui.addNextPage(SITE_IDENTIFIER, 'showEntries', params)
+        # if isMatch:
+        params = ParameterHandler()
+        params.setParam('page', int(sPageNr))
+        params.setParam('sUrl', entryUrl)
+        oGui.addNextPage(SITE_IDENTIFIER, 'showEntries', params)
 
         # Liste abschließen und View setzen
         oGui.setView('tvshows' if URL_SHOWS in entryUrl else 'movies')
@@ -384,23 +400,18 @@ def _getHostFromUrl(sID, sEpisode, sServername):
         return []
 
     try:
-        resultJson = json.loads(sHtmlContent)
-    except ValueError:
-        logger.debug("could not decode resultJson because of invalid content")
-        return []
-    except TypeError:
-        logger.debug("could not decode server json because of invalid type")
+        getLinkResponseJson = json.loads(sHtmlContent)
+    except (ValueError, TypeError):
+        logger.debug("could not decode server response")
         return []
 
-    if len(resultJson['playinfo']) == 0:
-        logger.info("no entries in playinfo")
+    if 'playinfo' not in getLinkResponseJson:
+        logger.info("no playable sources")
         return []
-
-    logger.debug("resultJson = " + str(resultJson))
 
     hosters = []
 
-    for playableEntry in resultJson['playinfo']:
+    for playableEntry in getLinkResponseJson['playinfo']:
         hoster = dict()
         quality = playableEntry["label"]
         url = playableEntry["file"]
