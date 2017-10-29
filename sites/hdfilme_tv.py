@@ -343,7 +343,7 @@ def getHosters(sUrl=False):
     # Prüfen ob Server ermittelt werden konnte 
     if isMatch:
         # Prüfen ob eine direkte-Episode gewünscht ist
-        aMatches = re.compile("episode=(\d+)&").findall(sUrl)
+        aMatches = re.compile("episode=(\d+)$").findall(sUrl)
 
         # gewünsche Episode ermitteln wenn möglich
         sEpisode = "1" if not aMatches else aMatches[0]
@@ -359,9 +359,8 @@ def getHosters(sUrl=False):
 
             # Alle Links durchlaufen
             for singleUrl in aResult:
-
                 # Link auf korrekte Episode prüfen
-                aMatches = re.compile("episode=(%s)" % sEpisode).findall(singleUrl)
+                aMatches = re.compile("episode=(%s)$" % sEpisode).findall(singleUrl)
 
                 # Wurde ein Link gefunden? => Einträge zur Gesamtliste hinzufügen
                 if aMatches:
@@ -379,30 +378,40 @@ def _getHostFromUrl(sID, sEpisode, sServername):
     # Seite abrufen
     sHtmlContent = cRequestHandler(URL_GETLINK + sID + '/' + sEpisode).request()
     sHtmlContent = base64.b64decode(str(sHtmlContent))
-    pattern = '''["']?\s*file\s*["']?\s*[:=,]?\s*["']([^"']+)(?:[^}>\]]+)["']?\s*label\s*["']?\s*[:=]\s*["']?([^"',]+)'''
-    isMatch, aResult = cParser.parse(sHtmlContent, pattern)
-    # Nichts gefunden? => Raus hier
-    if not isMatch:
-        logger.info("hoster pattern did not match")
+
+    if sHtmlContent is None:
+        logger.info("result string is none")
         return []
 
-    # hosterliste initialisieren
+    try:
+        resultJson = json.loads(sHtmlContent)
+    except ValueError:
+        logger.debug("could not decode resultJson because of invalid content")
+        return []
+    except TypeError:
+        logger.debug("could not decode server json because of invalid type")
+        return []
+
+    if len(resultJson['playinfo']) == 0:
+        logger.info("no entries in playinfo")
+        return []
+
+    logger.debug("resultJson = " + str(resultJson))
+
     hosters = []
 
-    # Alle Einträge durchlaufen und Hostereintrag erstellen
-    for sUrl,quali in aResult:
-
-        sUrl = sUrl.replace('\/', '/')
-        sLabel = sServername + ' - ' + quali
+    for playableEntry in resultJson['playinfo']:
         hoster = dict()
-        hoster['link'] = sUrl
-        if quali in QUALITY_ENUM:
-            hoster['quality'] = QUALITY_ENUM[quali]
-        hoster['name'] = sLabel
+        quality = playableEntry["label"]
+        url = playableEntry["file"]
+        label = sServername + ' - ' + quality
+        if quality in QUALITY_ENUM:
+            hoster['quality'] = QUALITY_ENUM[quality]
+        hoster['link'] = url
+        hoster['name'] = label
         hoster['resolveable'] = True
         hosters.append(hoster)
 
-    # Hoster zurückgeben
     return hosters
 
 def play(sUrl=False):
